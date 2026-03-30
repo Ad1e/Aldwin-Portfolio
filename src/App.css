@@ -360,6 +360,7 @@
   line-height: 1.7;
   color: var(--text-secondary);
   max-width: 500px;
+  text-align: justify;
 }
 
 .hero-cta {
@@ -607,6 +608,7 @@
   font-size: 1.05rem;
   line-height: 1.8;
   margin-bottom: 20px;
+  text-align: justify;
 }
 
 .about-text blockquote {
@@ -784,6 +786,7 @@
   max-width: 600px;
   margin-bottom: 48px;
   line-height: 1.7;
+  text-align: justify;
 }
 
 .projects-grid {
@@ -843,6 +846,7 @@
   font-size: 0.95rem;
   line-height: 1.7;
   margin-bottom: 20px;
+  text-align: justify;
 }
 
 .project-tags {
@@ -1068,6 +1072,7 @@
   font-size: 1.05rem;
   line-height: 1.8;
   margin-bottom: 32px;
+  text-align: justify;
 }
 
 .connect-email {
