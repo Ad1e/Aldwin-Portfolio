@@ -1,11 +1,7 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 <!-- Header Banner -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=Aldwin%20C.%20Mazan&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Full-Stack%20Developer%20%7C%20Network%20Technology%20Specialist&descSize=16&descAlignY=55&descColor=8b949e" width="100%"/>
-
-<!-- Typing Animation -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=58A6FF&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=80&lines=%F0%9F%91%8B+Hello%2C+I'm+Aldwin+C.+Mazan;%F0%9F%8E%93+Fresh+Graduate+%7C+IT+Network+Technology;%F0%9F%92%BB+Building+digital+solutions+that+matter)](https://git.io/typing-svg)
-
 </div>
 
 ---
@@ -80,10 +76,6 @@ I specialize in building responsive web applications, designing cloud-based arch
 <td align="center" width="110">
 <img src="https://skillicons.dev/icons?i=vite" width="48" height="48" alt="Vite" />
 <br/><b>Vite</b>
-</td>
-<td align="center" width="110">
-<img src="https://skillicons.dev/icons?i=java" width="48" height="48" alt="Java" />
-<br/><b>Java</b>
 </td>
 <td align="center" width="110">
 <img src="https://skillicons.dev/icons?i=cpp" width="48" height="48" alt="C++" />
