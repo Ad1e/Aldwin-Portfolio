@@ -94,6 +94,22 @@ If you'd like to run this portfolio locally or use it as inspiration, follow the
 
 <br/>
 
+## 📊 GitHub Analytics
+
+<div align="center">
+
+<img src="https://github-readme-stats.vercel.app/api?username=Ad1e&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=c9d1d9&ring_color=1f6feb" height="170"/>
+&nbsp;&nbsp;
+<img src="https://github-readme-streak-stats.herokuapp.com/?user=Ad1e&theme=github-dark-blue&hide_border=true&background=0d1117&stroke=1f6feb&ring=58a6ff&fire=ff6e40&currStreakLabel=58a6ff" height="170"/>
+
+<br/><br/>
+
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=Ad1e&bg_color=0d1117&color=58a6ff&line=1f6feb&point=ff6e40&area=true&area_color=1f6feb&hide_border=true" width="95%"/>
+
+</div>
+
+<br/>
+
 ## 🤝 Let's Connect
 
 I'm an IT graduate specializing in Network Technology and diving deep into full-stack development, cloud computing, and cybersecurity. I'm always open to discussing new projects, creative ideas, or opportunities!
@@ -118,7 +134,7 @@ I'm an IT graduate specializing in Network Technology and diving deep into full-
 
 <br/><br/>
 
-<img src="https://komarev.com/ghpvc/?username=aldwinmazan&style=for-the-badge&color=1f6feb&label=PROFILE+VIEWS" alt="Profile Views" />
+<img src="https://komarev.com/ghpvc/?username=Ad1e&style=for-the-badge&color=1f6feb&label=PROFILE+VIEWS" alt="Profile Views" />
 
 </div>
 
