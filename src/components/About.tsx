@@ -27,7 +27,7 @@ export function About() {
               development.
             </p>
             <blockquote>
-              "Building digital solutions that matter — bridging the gap between hardware
+              "Building digital solutions that matter bridging the gap between hardware
               and software, one project at a time."
             </blockquote>
           </div>
