@@ -40,7 +40,7 @@ export function Contact() {
             <p>
               I'm always open to discussing new projects, creative ideas, or
               opportunities to be part of your vision. Whether it's a collaboration
-              or just a hello — feel free to reach out!
+              or just a hello feel free to reach out!
             </p>
 
             <a href="mailto:aldwincatilo21@gmail.com" className="connect-email">

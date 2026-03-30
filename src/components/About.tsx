@@ -21,8 +21,8 @@ export function About() {
               and cybersecurity principles.
             </p>
             <p>
-              With hands-on experience in building real-world applications — from IoT-connected mobile
-              apps to financial desktop tools — I bring a practical, solutions-driven mindset to every
+              With hands-on experience in building real-world applications from IoT-connected mobile
+              apps to financial desktop tools I bring a practical, solutions-driven mindset to every
               project. I thrive at the intersection of networking infrastructure and modern software
               development.
             </p>

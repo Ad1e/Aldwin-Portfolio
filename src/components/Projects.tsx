@@ -26,7 +26,7 @@ export function Projects() {
                 A solar-powered IoT-based smart ventilation and fire safety system
                 for Alaw Tiluk. Monitors temperature, smoke, and humidity in real time
                 using ESP32 sensors, automatically controls exhaust fans, and triggers
-                fire safety alerts — all accessible via a Mobile Application.
+                fire safety alerts all accessible via a Mobile Application.
               </p>
               <div className="project-tags">
                 <span className="project-tag"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" alt="Flutter" />Flutter</span>
