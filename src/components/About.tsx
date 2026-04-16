@@ -1,7 +1,13 @@
 import { useReveal } from '../hooks/useReveal'
+import { projectsData } from '../data/projectsData'
+import { certsData } from '../data/certsData'
+import { technologiesData } from '../data/technologiesData'
 
 export function About() {
   const aboutRef = useReveal()
+  const projectCount = projectsData.length
+  const certCount = certsData.length
+  const techCount = technologiesData.length
 
   return (
     <section className="about-section" id="about">
@@ -34,16 +40,16 @@ export function About() {
 
           <div className="about-stats">
             <div className="stat-card">
-              <div className="stat-number gradient-text">4</div>
+              <div className="stat-number gradient-text">{projectCount}</div>
               <div className="stat-label">Projects Built</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number gradient-text">6+</div>
+              <div className="stat-number gradient-text">{techCount}+</div>
               <div className="stat-label">Technologies</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number gradient-text">2</div>
-              <div className="stat-label">AWS Certification</div>
+              <div className="stat-number gradient-text">{certCount}</div>
+              <div className="stat-label">Certifications</div>
             </div>
             <div className="stat-card">
               <div className="stat-number gradient-text">∞</div>
