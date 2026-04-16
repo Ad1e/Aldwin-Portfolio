@@ -33,8 +33,7 @@ export function About() {
               development.
             </p>
             <blockquote>
-              "Building digital solutions that matter bridging the gap between hardware
-              and software, one project at a time."
+              "Transforming ideas into elegant solutions. Crafting code that powers innovation and drives real-world impact."
             </blockquote>
           </div>
 
