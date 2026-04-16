@@ -1243,9 +1243,7 @@
   border-radius: 20px;
   padding: 28px;
   transition: var(--transition-smooth);
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: 380px;
+  flex: 0 0 380px;
   scroll-snap-align: start;
   cursor: default;
 }
@@ -1362,7 +1360,7 @@
   }
 
   .project-card-carousel {
-    max-width: 320px;
+    flex: 0 0 320px;
     padding: 20px;
   }
 
@@ -1386,7 +1384,7 @@
 
 @media (max-width: 600px) {
   .project-card-carousel {
-    max-width: 280px;
+    flex: 0 0 280px;
     padding: 16px;
     gap: 12px;
   }
@@ -1427,7 +1425,7 @@
   }
 
   .project-card-carousel {
-    max-width: 260px;
+    flex: 0 0 260px;
     padding: 14px;
   }
 
