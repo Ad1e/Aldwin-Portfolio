@@ -1,117 +1,286 @@
-import { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { MessageSquare, X, Send, Bot } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// 1. Initialize the API using your .env variable
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
+const SYSTEM_PROMPT = `You are Aldwin's AI assistant embedded in his personal portfolio website. Be concise, friendly, and professional.
+
+About Aldwin Mazan:
+- Senior IT student at Batangas State University
+- Specializes in: React, TypeScript, Flutter, IoT, Python, Node.js, Firebase, MySQL
+- Certifications: AWS Academy Cloud Security, Cisco Intro to Cybersecurity (x2), Cisco Network Defense
+
+Projects:
+1. KLIMA - Campus Risk Dashboard: Real-time campus risk assessment and live weather monitoring for BatStateU. Built with React, TypeScript, Node.js, and Leaflet Maps. Features live weather forecasts via Open-Meteo API, interactive risk maps, tropical cyclone analysis from GDACS/PAGASA.
+2. RDANA - Rapid Damage Assessment: Digital rapid damage assessment form for disaster impact evaluation. Built with React, TypeScript, and Tailwind CSS.
+3. OJTracker - Internship Time Tracker: Comprehensive internship time tracking app with Chart.js data visualization. Built with React and TypeScript.
+4. TiluX Kitchen Monitoring: Solar-powered IoT smart ventilation and fire safety system using ESP32 sensors, Flutter mobile app, and Firebase. Monitors temperature, smoke, and humidity in real time.
+5. CashFlow Tracker: Dark-themed desktop financial tracking tool built with Python, CustomTkinter UI, MySQL database, and Matplotlib charts.
+
+If someone asks about hiring or contacting Aldwin, direct them to the Contact section of the portfolio.
+Keep responses short and to the point (2–4 sentences). Do not use excessive markdown.`;
+
+const SUGGESTIONS = [
+  '🚀 Tell me about your projects',
+  '🛠️ What technologies do you use?',
+  '📜 What certifications do you have?',
+  '📬 How can I hire you?',
+];
+
+interface Message {
+  role: 'user' | 'model';
+  text: string;
+}
 
 const PortfolioChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([
-    { role: 'model', text: 'Hi! I’m Symon’s AI assistant. Ask me about his IT projects or internship!' }
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'model',
+      text: "Hi! I'm Aldwin's AI assistant. Ask me anything about his projects, skills, or experience — or pick a suggestion below! 👇",
+    },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll logic
+  // Auto-scroll on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = { role: 'user', text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      // 2. Configure the Model
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: "You are an AI for Symon, a senior IT student. You are professional and highlight his skills in React, Flutter, and IoT. Mention his Smart Ventilation and CCTV Dashboard projects if asked about his work."
-      });
-
-      // 3. Start the Chat with History
-      const history = messages.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.text }],
-      }));
-
-      const chat = model.startChat({ history });
-      const result = await chat.sendMessage(input);
-      const responseText = result.response.text();
-
-      setMessages((prev) => [...prev, { role: 'model', text: responseText }]);
-    } catch (error) {
-      console.error("Gemini Error:", error);
-      setMessages((prev) => [...prev, { role: 'model', text: "I'm having trouble connecting to my brain right now. Try again later!" }]);
-    } finally {
-      setIsLoading(false);
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setHasUnread(false);
+      setTimeout(() => inputRef.current?.focus(), 150);
     }
+  }, [isOpen]);
+
+  // Escape key to close
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isOpen]);
+
+  const sendMessage = useCallback(
+    async (text?: string) => {
+      const messageText = text ?? input;
+      if (!messageText.trim() || isLoading) return;
+
+      const userMessage: Message = { role: 'user', text: messageText };
+      setMessages((prev) => [...prev, userMessage]);
+      setInput('');
+      setIsLoading(true);
+
+      try {
+        const model = genAI.getGenerativeModel({
+          model: 'gemini-2.0-flash',
+          systemInstruction: SYSTEM_PROMPT,
+        });
+
+        // Gemini requires history to start with a 'user' turn and alternate.
+        // We drop any leading 'model' messages (e.g. the initial greeting) before building history.
+        // Also ensure we don't pass the *current* user input into history.
+        const historyMessages = [...messages];
+        while (historyMessages.length > 0 && historyMessages[0].role === 'model') {
+          historyMessages.shift();
+        }
+
+        const firstUserIndex = messages.findIndex((msg) => msg.role === 'user');
+        const history =
+          firstUserIndex === -1
+            ? []
+            : messages.slice(firstUserIndex).map((msg) => ({
+              role: msg.role,
+              parts: [{ text: msg.text }],
+            }));
+
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(messageText);
+        const responseText = result.response.text();
+
+        setMessages((prev) => [...prev, { role: 'model', text: responseText }]);
+        if (!isOpen) setHasUnread(true);
+      } catch (error) {
+        console.error('Gemini Error:', error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            text: "I'm having trouble connecting right now. Please try again in a moment!",
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [input, isLoading, messages, isOpen]
+  );
+
+  const clearChat = () => {
+    setMessages([
+      {
+        role: 'model',
+        text: "Chat cleared! What would you like to know about Aldwin? 😊",
+      },
+    ]);
   };
 
+  const showSuggestions = messages.length <= 1 && !isLoading;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans text-black">
+    <div className="chat-widget">
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-4 w-80 md:w-96 h-[500px] bg-white border border-gray-200 shadow-2xl rounded-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="chat-window">
           {/* Header */}
-          <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Bot size={20} />
+          <div className="chat-header">
+            <div className="chat-header-info">
+              <div className="chat-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                  <path d="M8 12h8M12 8v8" />
+                </svg>
+              </div>
               <div>
-                <p className="font-bold text-sm">Symon's AI</p>
-                <p className="text-[10px] opacity-80">Online</p>
+                <p className="chat-header-name">Aldwin's AI</p>
+                <p className="chat-header-status">
+                  <span className="chat-status-dot" />
+                  Online
+                </p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-blue-700 p-1 rounded-full">
-              <X size={20} />
-            </button>
+            <div className="chat-header-actions">
+              <button
+                className="chat-icon-btn"
+                onClick={clearChat}
+                title="Clear conversation"
+                aria-label="Clear conversation"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
+              </button>
+              <button
+                className="chat-icon-btn"
+                onClick={() => setIsOpen(false)}
+                title="Close chat"
+                aria-label="Close chat"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div ref={scrollRef} className="chat-messages">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                  msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-none' 
-                  : 'bg-white border border-gray-200 rounded-tl-none'
-                }`}>
+              <div key={i} className={`chat-message-row ${msg.role === 'user' ? 'chat-message-row--user' : 'chat-message-row--bot'}`}>
+                {msg.role === 'model' && (
+                  <div className="chat-bot-avatar">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                      <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M5 14a7 7 0 0 0 7 7 7 7 0 0 0 7-7H5M9 9h2v2H9V9m4 0h2v2h-2V9z" />
+                    </svg>
+                  </div>
+                )}
+                <div className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble--user' : 'chat-bubble--bot'}`}>
                   {msg.text}
                 </div>
               </div>
             ))}
-            {isLoading && <div className="text-xs text-gray-400">Thinking...</div>}
+
+            {/* Typing indicator */}
+            {isLoading && (
+              <div className="chat-message-row chat-message-row--bot">
+                <div className="chat-bot-avatar">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                    <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M5 14a7 7 0 0 0 7 7 7 7 0 0 0 7-7H5M9 9h2v2H9V9m4 0h2v2h-2V9z" />
+                  </svg>
+                </div>
+                <div className="chat-bubble chat-bubble--bot chat-typing">
+                  <span className="chat-typing-dot" />
+                  <span className="chat-typing-dot" />
+                  <span className="chat-typing-dot" />
+                </div>
+              </div>
+            )}
+
+            {/* Suggestion chips */}
+            {showSuggestions && (
+              <div className="chat-suggestions">
+                {SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    className="chat-chip"
+                    onClick={() => sendMessage(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Input */}
-          <div className="p-4 bg-white border-t flex gap-2">
-            <input 
-              className="flex-1 bg-gray-100 rounded-xl px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+          {/* Input area */}
+          <div className="chat-input-area">
+            <input
+              ref={inputRef}
+              className="chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Ask about my projects..."
+              placeholder="Ask about Aldwin…"
+              disabled={isLoading}
+              aria-label="Chat input"
             />
-            <button onClick={sendMessage} className="bg-blue-600 text-white p-2 rounded-xl transition-opacity disabled:opacity-50" disabled={isLoading}>
-              <Send size={18} />
+            <button
+              className="chat-send-btn"
+              onClick={() => sendMessage()}
+              disabled={isLoading || !input.trim()}
+              aria-label="Send message"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
             </button>
           </div>
         </div>
       )}
 
       {/* Toggle Button */}
-      <button 
+      <button
+        className={`chat-toggle-btn ${isOpen ? 'chat-toggle-btn--open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105"
+        aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
-        {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
+        {hasUnread && !isOpen && <span className="chat-unread-dot" />}
+        <span className={`chat-toggle-icon ${isOpen ? 'chat-toggle-icon--rotated' : ''}`}>
+          {isOpen ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="26" height="26">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="26" height="26">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          )}
+        </span>
       </button>
     </div>
   );
